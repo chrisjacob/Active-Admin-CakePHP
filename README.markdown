@@ -8,7 +8,7 @@ Based on Active Admin for RoR (http://activeadmin.info/). This plugin for CakePH
 
 2 - Enable the plugin in your app/Config/bootstrap.php file
     
-    CakePlugin::load(array('ActiveAdmin' => array('routes' => true));
+    CakePlugin::load(array('ActiveAdmin' => array('routes' => true)));
 
 3 - Open (or create) your app/Controller/AppController.php file and add the following:
 
