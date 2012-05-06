@@ -5,29 +5,25 @@
     <title><?php echo $title_for_layout; ?></title>
     <?php
       echo $this->Html->css('/active_admin/css/admin');
+      // Admin vendor includes Jquery 1.4.2 and other misc libraries
       echo $this->Html->script('/active_admin/js/admin_vendor');
       echo $this->Html->script('/active_admin/js/admin');
-      echo $scripts_for_layout;
+      echo $this->fetch('meta');
+      echo $this->fetch('css');
+      echo $this->fetch('script');
     ?>
   </head>
   <body class="">
     <div id="wrapper">
       <div id="header">
         <h1 id="site_title"><?php echo $this->Html->link('Site', "/"); ?></h1>
-        <?php if(isset($adminMenu) && !empty($adminMenu)): ?>
-        <ul class="tabbed_navigation" id="tabs">
-            <?php foreach($adminMenu as $menuItem):
-                $menuTitleArray = explode(".",$menuItem['Dashboard']['value']);
-                if(sizeof($menuTitleArray) == 1 || $menuTitleArray[0] == $menuTitleArray[1]){
-                     $menuTitle = $menuTitleArray[0];
-                }else {
-                    $menuTitle = $menuTitleArray[0]." ".$menuTitleArray[1];
-                }
-              ?>
-            <li<?php if($this->params['controller'] == $menuItem['Dashboard']['value']) echo " class='current'"?>><?php echo $this->Html->link($menuTitle, DS . 'admin' . DS . str_replace(".",DS,strtolower($menuItem['Dashboard']['value']))); ?></li>
-            <?php endforeach; ?>
-        </ul>
-        <?php endif; ?>
+        <?php if($this->params['action'] !== 'admin_login' && $adminMenu = $this->requestAction(array('plugin' => 'active_admin', 'controller' => 'dashboard', 'action' => 'menu'))){ ?>
+            <ul class="tabbed_navigation" id="tabs">
+                <?php foreach($adminMenu as $menuItem):?>
+                <li<?php if($this->params['controller'] == $menuItem['Dashboard']['url']['controller']) echo " class='current'"?>><?php echo $this->Html->link(Inflector::humanize(implode(' ', $menuItem['Dashboard']['url'])), array_merge($menuItem['Dashboard']['url'],array('action'=>'index'))); ?></li>
+                <?php endforeach; ?>
+            </ul>
+        <? } ?>
         <?php echo $this->element('user_info', array(), array('plugin' => 'ActiveAdmin')); ?>
       </div>
       <div id="title_bar">
@@ -40,7 +36,7 @@
           <?php if($this->params['action'] == 'admin_index' || $this->params['action'] == 'admin_view'): ?>
           <span class="action_item"><?php echo $this->Html->link('New '. Inflector::singularize($this->name), array('controller'=>$this->params['controller'], 'action'=>'admin_add'))?></span>
           <?php endif; ?>
-          <span class="action_item"><?php echo $this->Html->link('Clear cache', array('controller'=>'apis', 'action'=>'admin_clear_cache'))?></span>
+          <span class="action_item"><?php echo $this->Html->link('Clear cache', array('plugin'=>'active_admin', 'controller'=>'apis', 'action'=>'clear_cache',$this->params['plugin'],$this->params['controller']))?></span>
         </div>
       </div>
       <div class="with_sidebar" id="active_admin_content">
@@ -52,7 +48,7 @@
           if($this->params['action'] == 'admin_index' && $this->params['controller'] != 'dashboard') {
             echo $this->element('paging_info', array(), array('plugin'=>'ActiveAdmin'));
           }
-          echo $content_for_layout;
+          echo $this->fetch('content');
           
           if($this->params['action'] == 'admin_index' && $this->params['controller'] != 'dashboard') {
             echo $this->element('paging', array(), array('plugin'=>'ActiveAdmin'));
